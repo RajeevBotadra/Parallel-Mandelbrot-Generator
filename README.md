@@ -10,3 +10,6 @@ $[f_c(0), f_c(f_c(0)), f_c(f_c(f_c(0))),\dots]$
 
 ### Defining Divergence
 Traditionally, divergence is defined by a threshold of the magnitude of the current element in the sequence. For example, if we choose a threshold of $f_{max} = 10$, then the sequence diverges at the $i^{th}$ iteration if $|f_c(i)| > f_{max} = 10$.
+
+Generated figure:
+![Mandelbrot Image](figures/image.png)
