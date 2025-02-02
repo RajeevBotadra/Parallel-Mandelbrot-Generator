@@ -1,0 +1,41 @@
+/*Defines a class to represent complex numbers and operate on them*/
+
+class Complex{
+private:
+    //Real and imaginary components of numbers
+    float real;
+    float imag;
+
+public:
+    //Constructor
+    Complex(float real, float imag){
+        this->real = real;
+        this->imag = imag;
+
+        return;
+    }
+
+    //Adding two complex numbers
+    friend Complex operator+(const Complex& a, const Complex& b){
+        float real_sum = a.real + b.real;
+        float imag_sum = a.imag + b.imag;
+        
+        return Complex(real_sum, imag_sum);
+    }
+
+    //Subtracting two complex numbers
+    friend Complex operator-(const Complex& a, const Complex& b){
+        float real_sub = a.real - b.real;
+        float imag_sub = a.imag - b.imag;
+
+        return Complex(real_sub, imag_sub);
+    }
+
+    //Multiplying two complex numbers
+    friend Complex operator-(const Complex& a, const Complex& b){
+        float r_sub = a.r - b.r;
+        float i_sub = a.i - b.i;
+
+        return Complex(r_sub, i_sub);
+    }      
+};
