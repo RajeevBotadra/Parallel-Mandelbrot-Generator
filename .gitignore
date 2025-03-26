@@ -1,5 +1,5 @@
 .vscode
 bin
 *.exe
+*.ppm
 backup
-figures/frames
