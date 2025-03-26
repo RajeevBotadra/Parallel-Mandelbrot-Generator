@@ -28,7 +28,7 @@ void Mandelbrot::makeGrid(){
     return;
 }
 
-//Evolves Mandelbrot set for a given starting value c
+/*Evolves Mandelbrot set for a given starting value c*/
 int Mandelbrot::generateSet(Complex c){
     Complex f = c;
     int iter = 0;
@@ -76,5 +76,43 @@ void Mandelbrot::saveImage(const std::string& filename){
     }
 
     file.close();
+    return;
+}
+
+/*Override derived functions for parallel mandlebrot class*/
+/*Assign each point in grid a complex value*/
+void ParallelMandelbrot::makeGrid(){
+#pragma omp parallel num_threads(this->max_procs)
+{ 
+    #pragma omp for collapse(2)
+    for(int i = 0; i < n_rows; i++){
+        for(int j = 0; j < n_cols; j++){
+            float real = (float)j*this->resolution + r_min;
+            float imag = (float)i*this->resolution + i_min;
+
+            this->grid[i][j] = Complex(real, imag);
+        }
+    }
+}
+    return;
+}
+
+/*Iterate through all points in grid to generate image and compute sets in parallel*/
+void ParallelMandelbrot::generateImage(){
+    makeGrid();
+#pragma omp parallel num_threads(this->max_procs)
+{ 
+    //Use a dynamic scheduler since set generation will take varying amount of time 
+    #pragma omp for schedule(dynamic, 16)
+    
+    for(int i = 0; i < n_rows; i++){
+        for(int j = 0; j < n_cols; j++){
+            Complex c = this->grid[i][j];
+            int pixel = generateSet(c);
+            this->image[i][j] = pixel;
+        }
+    }
+}
+
     return;
 }
