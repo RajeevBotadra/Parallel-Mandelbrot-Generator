@@ -1,54 +1,55 @@
-// #include "complex.h"
-// #include "mandelbrot.h"
-// #include "benchmark.h"
-// #include <iostream>
-// #include <vector>
-// #include <map>
-// #include <omp.h>
+/*Generates images of Mandelbrot set in complex space at different centers/resolutions in parallel to create a movie*/
+#include "complex.h"
+#include "frameGenerator.h"
+#include "mandelbrot.h"
+#include <omp.h>
+#include <vector>
+#include <iostream>
+#include <string>
+#include <sstream>
+#include <iomanip>
+#include <chrono>
 
-// int main2(){
-//     /*Setup Experiments*/
-//     //Variables
-//     printf("Max Number of threads: %d\n", omp_get_max_threads());
-//     std::vector<int> thread_counts;
-//     std::vector<float> resolutions = {0.001, 0.01, 0.1, 1.0};
-//     int max_procs = 32;
-//     for(int i = 1; i <= max_procs; i++){
-//         thread_counts.push_back(i);
-//     }
+/*Arguments:
+*   argv[1] -- (int) number of processors to use in generation
+*   argv[2] -- (int) number of frames to generate
+*   argv[3] -- (char*) region to generate ("Seahorse", "Elephant Valley", "Feigenbaum")
+*   argv[4] -- (bool) save files or not
+*   argv[5] -- (char*) dir to save frames
+*   argv[6] -- (float) zoom factor between frames, 1.025 is a 2.5% zoom between frames
+*   argv[7] -- (float) standard resolution of a frame with no zoom (will be scaled with dimensions)
+*/
+int main(int argc, char** argv){
+    //Parse args
+    int max_procs = 1;
+    int n_frames = 10;
+    std::string region = "Feigenbaum";
+    bool save_frames = true;
+    std::string output_dir = "../figures/frames/";
+    float zoom_factor = 1.025f;
+    float standard_res = 0.001f;    //Scaled with zoom
 
-//     //Experiment constants
-//     //Maximum number of iterations before declaring convergence
-//     int max_iter = 1000;
-//     //Threshold for divergence
-//     float thresh = 2.0f;
-//     //The distance between two sample points (i.e. delta_x, delta_y)
-//     float res = 0.0005f;
-//     //Range of the space we are sampling in
-//     float r_max = 4.0f;
-//     float r_min = -4.0f;
-//     float i_max = 4.0f;
-//     float i_min = -4.0f;
-//     std::string log_name = "test.txt";
-//     std::string log_dir = "../logs";
+    if(argc == 8){
+        max_procs = std::stoi(argv[1]);
+        n_frames = std::stoi(argv[2]);
+        region = std::string(argv[3]);
+        save_frames = std::stoi(argv[4]) == 1;
+        output_dir = std::string(argv[5]);
+        zoom_factor = std::stof(argv[6]);
+        standard_res = std::stof(argv[7]);
+        printf("Using %d processors to generate %d frames of %s at a %.6f standard resolution and %.4f zoom factor\n", 
+        max_procs, n_frames, region.c_str(), standard_res, zoom_factor);
+        if(save_frames) printf("Saving generated frames to %s\n", output_dir.c_str());
+        else printf("Not saving generated frames\n");
+    }
+    else{
+        printf("Insufficient arguments, using %d processors to generate %d frames of %s at a %.6f standard resolution and %.4f zoom factor\n"
+        , max_procs, n_frames, region.c_str(), standard_res, zoom_factor);
+        printf("Saving generated frames to %s\n", output_dir.c_str());
+    }
 
-//     //Map to store results as [n_threds, resolution]:runtime map
-//     std::map<std::pair<int, float>, double> results;
+    //Generate frames
+    generateFrames(max_procs, n_frames, region, save_frames, output_dir, zoom_factor, standard_res);
 
-//     //Benchmark
-//     Benchmark test(res, max_iter, max_procs, log_dir);
-//     test.start();
-
-//     //High res example
-//     ParallelMandelbrot a(max_procs, max_iter, thresh, res, r_max, r_min, i_max, i_min);
-//     //Simple example
-//     //Mandelbrot a;
-//     double dur = test.stop();
-//     printf("%.5f", dur);
-//     test.log(log_name);
-
-//     // std::string filename = "../figures/image.ppm";
-//     // a.generateImage();
-//     // a.saveImage(filename);
-//     return 0;
-// }
+    return 0;
+}

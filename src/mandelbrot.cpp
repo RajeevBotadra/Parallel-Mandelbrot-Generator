@@ -6,12 +6,19 @@
 #include <iostream>
 #include <fstream>
 
-/*Map an iteration to pixel value, higher iterations/convergence produce darker pixel*/
-int Mandelbrot::mapPixel(int iter){
-    if(this->max_iter == 0) return 0;
-    int pixel = floor(255*(max_iter - iter)/max_iter);
+/*Map an iteration to pixel value, higher iterations/convergence produce darker pixel; using Escape Time Convergence*/
+Pixel Mandelbrot::mapPixel(int iter){
+    if(this->max_iter == 0) return Pixel();
+    // //Normalized iteration count
+    double k = (double)(iter) / max_iter;
+    k = pow(k, 0.5);
+    double k_ = 1-k;
+    //Escape Time Convergence mappaing
+    int r = (int)(9*k_*k*k*k*255);
+    int g = (int)(15*k_*k_*k*k*255);
+    int b = (int)(8.5*k_*k_*k_*k*255);
 
-    return pixel;
+    return Pixel(r, g, b);
 }
 
 /*Assign each point in grid a complex value*/
@@ -39,7 +46,7 @@ int Mandelbrot::generateSet(Complex c){
         f = f*f + c;
     }
 
-    return mapPixel(iter);
+    return iter;
 }
 
 /*Iterate through all points in grid to generate image*/
@@ -48,8 +55,9 @@ void Mandelbrot::generateImage(){
     for(int i = 0; i < n_rows; i++){
         for(int j = 0; j < n_cols; j++){
             Complex c = this->grid[i][j];
-            int pixel = generateSet(c);
-            this->image[i][j] = pixel;
+            int iter = generateSet(c);
+            Pixel p = mapPixel(iter);
+            this->image[i][j] = p;
         }
     }
 
@@ -67,8 +75,8 @@ void Mandelbrot::saveImage(const std::string& filename){
 
     for(int i = 0; i < height; i++){
         for(int j = 0; j < width; j++){
-            int pixel = this->image[i][j];
-            file << pixel << " " << pixel << " " << pixel << " ";
+            Pixel p = this->image[i][j];
+            file << p.r << " " << p.g << " " << p.b << " ";
             //file << this->grid[i][j].getReal() << " + i" << this->grid[i][j].getImag() << " ";
         }
 
@@ -108,8 +116,9 @@ void ParallelMandelbrot::generateImage(){
     for(int i = 0; i < n_rows; i++){
         for(int j = 0; j < n_cols; j++){
             Complex c = this->grid[i][j];
-            int pixel = generateSet(c);
-            this->image[i][j] = pixel;
+            int iter = generateSet(c);
+            Pixel p = mapPixel(iter);
+            this->image[i][j] = p;
         }
     }
 }

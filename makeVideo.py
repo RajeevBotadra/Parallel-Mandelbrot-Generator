@@ -31,7 +31,7 @@ def createVideo(frames_dir, output_dir, fps):
         "-i", frame_pattern,
         "-c:v", "libx264",
         "-pix_fmt", "yuv420p",
-        "-crf", "23",  # Quality setting (lower is better, 18-28 recommended)
+        "-crf", "23",  #Quality setting (lower is better, 18-28 recommended)
         output_dir
     ]
 
